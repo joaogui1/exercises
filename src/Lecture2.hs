@@ -39,7 +39,7 @@ module Lecture2
     , eval
     , constantFolding
     ) where
-import Data.Maybe (listToMaybe, catMaybes)
+import Lecture3 (Treasure)
 
 {- | Implement a function that finds a product of all the numbers in
 the list. But implement a lazier version of this function: if you see
@@ -172,16 +172,21 @@ data Knight = Knight
     , knightEndurance :: Int
     }
 data Dragon a = Dragon
-  { dragonHealth    :: Int
+  { dragonChest     :: Chest a
   , dragonFirePower :: Int
-  , dragonChest     :: Chest a}
+  , dragonHealth    :: Int}
 
-type GreenDragon = Dragon
+type GreenDragon = Dragon OnlyGold
 type RedDragon = Dragon   
-type BlackDragon = Dragon   
-data Chest a = Treasure
+type BlackDragon = Dragon 
+
+type OnlyGold = Int
+data GoldTreasure a =  Treasure 
   { chestGold      :: Int
-  , chestTreasure  :: Maybe a}
+  , chestTreasure  :: a}
+data Chest a = OnlyGold 
+  | GoldTreasure a
+
 
 data Result a
   = Victory (Chest a)
