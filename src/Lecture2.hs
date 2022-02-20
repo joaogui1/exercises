@@ -39,6 +39,7 @@ module Lecture2
     , eval
     , constantFolding
     ) where
+import Lecture3 (Treasure)
 
 -- VVV If you need to import libraries, do it after this line ... VVV
 
@@ -52,7 +53,9 @@ zero, you can stop calculating product and return 0 immediately.
 84
 -}
 lazyProduct :: [Int] -> Int
-lazyProduct = error "TODO"
+lazyProduct [] = 1
+lazyProduct (0 : _) = 0
+lazyProduct (x :xs) = x * lazyProduct xs
 
 {- | Implement a function that duplicates every element in the list.
 
@@ -62,7 +65,8 @@ lazyProduct = error "TODO"
 "ccaabb"
 -}
 duplicate :: [a] -> [a]
-duplicate = error "TODO"
+duplicate [] = []
+duplicate (x:xs) = x:x:duplicate xs
 
 {- | Implement function that takes index and a list and removes the
 element at the given position. Additionally, this function should also
@@ -74,7 +78,13 @@ return the removed element.
 >>> removeAt 10 [1 .. 5]
 (Nothing,[1,2,3,4,5])
 -}
-removeAt = error "TODO"
+removeAt :: Int -> [a] -> (Maybe a, [a])
+removeAt _ [] = (Nothing, [])
+removeAt n (x:xs) 
+  | n <= 0 = (Just x, xs)
+  | otherwise = 
+    let (ids, ys) = removeAt (n - 1) xs
+    in (ids, x:ys)
 
 {- | Write a function that takes a list of lists and returns only
 lists of even lengths.
@@ -85,7 +95,8 @@ lists of even lengths.
 ♫ NOTE: Use eta-reduction and function composition (the dot (.) operator)
   in this function.
 -}
-evenLists = error "TODO"
+evenLists :: [[a]] -> [[a]]
+evenLists = filter (even . length)
 
 {- | The @dropSpaces@ function takes a string containing a single word
 or number surrounded by spaces and removes all leading and trailing
@@ -101,7 +112,8 @@ spaces.
 
 🕯 HINT: look into Data.Char and Prelude modules for functions you may use.
 -}
-dropSpaces = error "TODO"
+dropSpaces :: String -> String
+dropSpaces = unwords . words
 
 {- |
 
@@ -163,8 +175,35 @@ data Knight = Knight
     , knightAttack    :: Int
     , knightEndurance :: Int
     }
+data Dragon a = Dragon
+  { dragonChest     :: Chest a
+  , dragonFirePower :: Int
+  , dragonHealth    :: Int}
 
-dragonFight = error "TODO"
+type GreenDragon = Dragon OnlyGold
+type RedDragon = Dragon   
+type BlackDragon = Dragon 
+
+type OnlyGold = Int
+data GoldTreasure a =  Treasure 
+  { chestGold      :: Int
+  , chestTreasure  :: a}
+data Chest a = OnlyGold 
+  | GoldTreasure a
+
+
+data Result a
+  = Victory (Chest a)
+  | Defeat String
+dragonFight :: Dragon a -> Knight -> Result a
+dragonFight d k = fight 1 (dragonHealth d) (knightHealth k)
+  where fight turn dhealth khealth
+          | dhealth <= 0 = Victory (dragonChest d)
+          | knightEndurance k < turn = Defeat "Knight Loses"
+          | khealth <= 0 = Defeat "Knight Loses"
+          | turn `mod` 10 == 0 = fight (turn + 1) (dhealth - knightAttack k) (khealth - dragonFirePower d)
+          | otherwise = fight (turn + 1) (dhealth - knightAttack k) khealth
+  
 
 ----------------------------------------------------------------------------
 -- Extra Challenges
@@ -185,7 +224,8 @@ False
 True
 -}
 isIncreasing :: [Int] -> Bool
-isIncreasing = error "TODO"
+isIncreasing [] = True
+isIncreasing (x:xs) = and (zipWith (>=) xs (x:xs))
 
 {- | Implement a function that takes two lists, sorted in the
 increasing order, and merges them into new list, also sorted in the
@@ -198,7 +238,12 @@ verify that.
 [1,2,3,4,7]
 -}
 merge :: [Int] -> [Int] -> [Int]
-merge = error "TODO"
+merge xs [] = xs
+merge [] ys = ys
+merge (x:xs) (y:ys) 
+  | x == y = x:y:merge xs ys
+  | x < y = x:merge xs (y:ys)
+  | otherwise = y:merge (x:xs) ys
 
 {- | Implement the "Merge Sort" algorithm in Haskell. The @mergeSort@
 function takes a list of numbers and returns a new list containing the
@@ -215,8 +260,12 @@ The algorithm of merge sort is the following:
 [1,2,3]
 -}
 mergeSort :: [Int] -> [Int]
-mergeSort = error "TODO"
-
+mergeSort list 
+  | length list < 2 = list
+  | otherwise = merge (mergeSort xs) (mergeSort ys)
+    where (xs, ys) = split list
+split :: [a] -> ([a], [a])
+split list = splitAt ((length list + 1) `div` 2) list
 
 {- | Haskell is famous for being a superb language for implementing
 compilers and interpeters to other programming languages. In the next
