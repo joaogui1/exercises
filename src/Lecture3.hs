@@ -33,6 +33,8 @@ module Lecture3
     , appendDiff3
     , apply
     ) where
+import Language.Haskell.TH (valD, Extension (GADTSyntax))
+import Data.Time.Format.ISO8601 (yearFormat)
 
 -- VVV If you need to import libraries, do it after this line ... VVV
 
@@ -52,7 +54,7 @@ data Weekday
     | Friday
     | Saturday
     | Sunday
-    deriving (Show, Eq)
+    deriving (Show, Eq, Enum, Bounded)
 
 {- | Write a function that will display only the first three letters
 of a weekday.
@@ -60,13 +62,17 @@ of a weekday.
 >>> toShortString Monday
 "Mon"
 -}
-toShortString = error "TODO"
+toShortString :: Weekday -> String
+toShortString = take 3 . show
 
 {- | Write a function that returns next day of the week, following the
 given day.
 
 >>> next Monday
 Tuesday
+
+>>> next Sunday
+Monday
 
 ♫ NOTE: Implement this function without pattern matching on every
   constructor! Use standard typeclasses instead (you may need to derive
@@ -82,7 +88,11 @@ Tuesday
   would work for **any** enumeration type in Haskell (e.g. 'Bool',
   'Ordering') and not just 'Weekday'?
 -}
-next = error "TODO"
+next :: (Eq a, Enum a, Bounded a) => a -> a
+next eneq
+ | eneq == maxBound = minBound
+ | otherwise = succ eneq 
+ 
 
 {- | Implement a function that calculates number of days from the first
 weekday to the second.
@@ -92,7 +102,10 @@ weekday to the second.
 >>> daysTo Friday Wednesday
 5
 -}
-daysTo = error "TODO"
+daysTo :: Weekday -> Weekday -> Int
+daysTo day1 day2 
+ | day1 == day2 = 0
+ | otherwise = 1 + daysTo (next day1) day2
 
 {-
 
@@ -108,9 +121,10 @@ newtype Gold = Gold
 
 -- | Addition of gold coins.
 instance Semigroup Gold where
-
+  Gold x <> Gold y = Gold (x + y)
 
 instance Monoid Gold where
+  mempty = Gold 0
 
 
 {- | A reward for completing a difficult quest says how much gold
@@ -125,10 +139,11 @@ data Reward = Reward
     } deriving (Show, Eq)
 
 instance Semigroup Reward where
+  Reward gx sx <> Reward gy sy = Reward (gx <> gy) (sx || sy)
 
 
 instance Monoid Reward where
-
+  mempty = Reward (Gold 0) False
 
 {- | 'List1' is a list that contains at least one element.
 -}
@@ -137,10 +152,11 @@ data List1 a = List1 a [a]
 
 -- | This should be list append.
 instance Semigroup (List1 a) where
+  List1 x xs <> List1 y ys = List1 x (xs ++ y:ys)
 
 
 {- | Does 'List1' have the 'Monoid' instance? If no then why?
-
+No, because we would need the list to be empty
 instance Monoid (List1 a) where
 -}
 
@@ -161,9 +177,8 @@ monsters, you should get a combined treasure and not just the first
 -}
 instance Semigroup (Treasure a) where
 
-
 instance Monoid (Treasure a) where
-
+ mempty = NoTreasure
 
 {- | Abstractions are less helpful if we can't write functions that
 use them!
