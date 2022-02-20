@@ -40,6 +40,10 @@ module Lecture2
     , constantFolding
     ) where
 
+-- VVV If you need to import libraries, do it after this line ... VVV
+
+-- ^^^ and before this line. Otherwise the test suite might fail  ^^^
+
 {- | Implement a function that finds a product of all the numbers in
 the list. But implement a lazier version of this function: if you see
 zero, you can stop calculating product and return 0 immediately.
@@ -163,12 +167,12 @@ data Knight = Knight
 dragonFight = error "TODO"
 
 ----------------------------------------------------------------------------
--- Challenges
+-- Extra Challenges
 ----------------------------------------------------------------------------
 
-{- The following exercises are considered more challenging. However,
-you still may find some of them easier than some of the previous
-ones. Difficulty is a relative concept.
+{- The following exercises are considered optional. Some of them might be more
+challenging. However, you still may find some of them easier than some of the
+previous ones. Difficulty is a relative concept.
 -}
 
 {- | Write a function that takes a list of numbers and returns 'True'
