@@ -50,9 +50,8 @@ zero, you can stop calculating product and return 0 immediately.
 -}
 lazyProduct :: [Int] -> Int
 lazyProduct [] = 1
-lazyProduct (x:xs)
-  | x == 0 = 0
-  | otherwise = x * lazyProduct xs
+lazyProduct (0 : _) = 0
+lazyProduct (x :xs) = x * lazyProduct xs
 
 {- | Implement a function that duplicates every element in the list.
 
@@ -78,7 +77,7 @@ return the removed element.
 removeAt :: Int -> [a] -> (Maybe a, [a])
 removeAt _ [] = (Nothing, [])
 removeAt n (x:xs) 
-  | n == 0 = (Just x, xs)
+  | n <= 0 = (Just x, xs)
   | otherwise = 
     let (ids, ys) = removeAt (n - 1) xs
     in (ids, x:ys)
@@ -109,6 +108,7 @@ spaces.
 
 🕯 HINT: look into Data.Char and Prelude modules for functions you may use.
 -}
+dropSpaces :: String -> String
 dropSpaces = unwords . words
 
 {- |
@@ -231,7 +231,10 @@ verify that.
 merge :: [Int] -> [Int] -> [Int]
 merge xs [] = xs
 merge [] ys = ys
-merge (x:xs) (y:ys) = if x < y then x:merge xs (y:ys) else y:merge (x:xs) ys
+merge (x:xs) (y:ys) 
+  | x == y = x:y:merge xs ys
+  | x < y = x:merge xs (y:ys)
+  | otherwise = y:merge (x:xs) ys
 
 {- | Implement the "Merge Sort" algorithm in Haskell. The @mergeSort@
 function takes a list of numbers and returns a new list containing the
